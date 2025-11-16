@@ -1,0 +1,12 @@
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\SenorGPT.GTAIV.ChittyInfoDisplay.ivsdk.dll
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\SenorGPT.GTAIV.ChittyInfoDisplay.ivsdk.pdb
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\ClonksCodingLib.GTAIV.dll
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\IVSDKDotNetWrapper.dll
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\ClonksCodingLib.GTAIV.xml
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.GTAIV.ChittyInfoDisplay.csproj.AssemblyReference.cache
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.GTAIV.ChittyInfoDisplay.csproj.CoreCompileInputs.cache
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.A5D8F1F1.Up2Date
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.GTAIV.ChittyInfoDisplay.ivsdk.dll
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.GTAIV.ChittyInfoDisplay.ivsdk.pdb
+C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\SenorGPT.GTAIV.ChittyInfoDisplay.ivsdk.dll
+C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\SenorGPT.GTAIV.ChittyInfoDisplay.ivsdk.pdb

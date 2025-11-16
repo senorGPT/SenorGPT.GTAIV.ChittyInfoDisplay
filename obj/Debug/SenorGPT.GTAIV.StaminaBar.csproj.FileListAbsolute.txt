@@ -1,0 +1,10 @@
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\SenorGPT.GTAIV.StaminaBar.ivsdk.dll
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\SenorGPT.GTAIV.StaminaBar.ivsdk.pdb
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\IVSDKDotNetWrapper.dll
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.GTAIV.StaminaBar.csproj.AssemblyReference.cache
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.GTAIV.StaminaBar.csproj.CoreCompileInputs.cache
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.D2E44533.Up2Date
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.GTAIV.StaminaBar.ivsdk.dll
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\obj\Debug\SenorGPT.GTAIV.StaminaBar.ivsdk.pdb
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\ClonksCodingLib.GTAIV.dll
+C:\Users\david\source\repos\SenorGPT.GTAIV.StaminaBar\SenorGPT.GTAIV.StaminaBar\bin\Debug\ClonksCodingLib.GTAIV.xml
