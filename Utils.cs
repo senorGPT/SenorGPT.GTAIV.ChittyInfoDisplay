@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
 
 namespace SenorGPT.GTAIV.ChittyInfoDisplay
 {
+    /// <summary>
+    /// Utility class providing helper methods for text display, date/time formatting, key handling, and error logging.
+    /// </summary>
     public static class Utils
     {
         private static readonly string[] Months = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
@@ -13,27 +17,50 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         private static readonly Dictionary<int, string> KeyNames = new Dictionary<int, string>
         {
             // Letters
-            [0x41] = "A", [0x42] = "B", [0x43] = "C", [0x44] = "D", [0x45] = "E", [0x46] = "F", [0x47] = "G",
-            [0x48] = "H", [0x49] = "I", [0x4A] = "J", [0x4B] = "K", [0x4C] = "L", [0x4D] = "M", [0x4E] = "N",
-            [0x4F] = "O", [0x50] = "P", [0x51] = "Q", [0x52] = "R", [0x53] = "S", [0x54] = "T", [0x55] = "U",
-            [0x56] = "V", [0x57] = "W", [0x58] = "X", [0x59] = "Y", [0x5A] = "Z",
+            [VirtualKeyCodes.VK_A] = "A", [VirtualKeyCodes.VK_B] = "B", [VirtualKeyCodes.VK_C] = "C", [VirtualKeyCodes.VK_D] = "D", 
+            [VirtualKeyCodes.VK_E] = "E", [VirtualKeyCodes.VK_F] = "F", [VirtualKeyCodes.VK_G] = "G",
+            [VirtualKeyCodes.VK_H] = "H", [VirtualKeyCodes.VK_I] = "I", [VirtualKeyCodes.VK_J] = "J", [VirtualKeyCodes.VK_K] = "K", 
+            [VirtualKeyCodes.VK_L] = "L", [VirtualKeyCodes.VK_M] = "M", [VirtualKeyCodes.VK_N] = "N",
+            [VirtualKeyCodes.VK_O] = "O", [VirtualKeyCodes.VK_P] = "P", [VirtualKeyCodes.VK_Q] = "Q", [VirtualKeyCodes.VK_R] = "R", 
+            [VirtualKeyCodes.VK_S] = "S", [VirtualKeyCodes.VK_T] = "T", [VirtualKeyCodes.VK_U] = "U",
+            [VirtualKeyCodes.VK_V] = "V", [VirtualKeyCodes.VK_W] = "W", [VirtualKeyCodes.VK_X] = "X", 
+            [VirtualKeyCodes.VK_Y] = "Y", [VirtualKeyCodes.VK_Z] = "Z",
             // Numbers
-            [0x30] = "0", [0x31] = "1", [0x32] = "2", [0x33] = "3", [0x34] = "4",
-            [0x35] = "5", [0x36] = "6", [0x37] = "7", [0x38] = "8", [0x39] = "9",
+            [VirtualKeyCodes.VK_0] = "0", [VirtualKeyCodes.VK_1] = "1", [VirtualKeyCodes.VK_2] = "2", 
+            [VirtualKeyCodes.VK_3] = "3", [VirtualKeyCodes.VK_4] = "4",
+            [VirtualKeyCodes.VK_5] = "5", [VirtualKeyCodes.VK_6] = "6", [VirtualKeyCodes.VK_7] = "7", 
+            [VirtualKeyCodes.VK_8] = "8", [VirtualKeyCodes.VK_9] = "9",
             // Arrow keys
-            [0x25] = "Left Arrow", [0x26] = "Up Arrow", [0x27] = "Right Arrow", [0x28] = "Down Arrow",
+            [VirtualKeyCodes.VK_LEFT] = "Left Arrow", [VirtualKeyCodes.VK_UP] = "Up Arrow", 
+            [VirtualKeyCodes.VK_RIGHT] = "Right Arrow", [VirtualKeyCodes.VK_DOWN] = "Down Arrow",
             // Special keys
-            [0xBB] = "+", [0xBD] = "-", [0xBC] = ",", [0xBE] = ".",
-            [0x08] = "Backspace", [0x09] = "Tab", [0x0D] = "Enter", [0x20] = "Space",
-            [0x1B] = "Escape", [0x2D] = "Insert", [0x2E] = "Delete", [0x21] = "Page Up",
-            [0x22] = "Page Down", [0x23] = "End", [0x24] = "Home",
-            [0x10] = "Shift", [0xA0] = "Left Shift", [0xA1] = "Right Shift",
+            [VirtualKeyCodes.VK_PLUS] = "+", [VirtualKeyCodes.VK_MINUS] = "-", 
+            [VirtualKeyCodes.VK_COMMA] = ",", [VirtualKeyCodes.VK_PERIOD] = ".",
+            [VirtualKeyCodes.VK_BACKSPACE] = "Backspace", [VirtualKeyCodes.VK_TAB] = "Tab", 
+            [VirtualKeyCodes.VK_ENTER] = "Enter", [VirtualKeyCodes.VK_SPACE] = "Space",
+            [VirtualKeyCodes.VK_ESCAPE] = "Escape", [VirtualKeyCodes.VK_INSERT] = "Insert", 
+            [VirtualKeyCodes.VK_DELETE] = "Delete", [VirtualKeyCodes.VK_PAGE_UP] = "Page Up",
+            [VirtualKeyCodes.VK_PAGE_DOWN] = "Page Down", [VirtualKeyCodes.VK_END] = "End", 
+            [VirtualKeyCodes.VK_HOME] = "Home",
+            [VirtualKeyCodes.VK_SHIFT] = "Shift", [VirtualKeyCodes.VK_LEFT_SHIFT] = "Left Shift", 
+            [VirtualKeyCodes.VK_RIGHT_SHIFT] = "Right Shift",
             // Function keys
-            [0x70] = "F1", [0x71] = "F2", [0x72] = "F3", [0x73] = "F4", [0x74] = "F5", [0x75] = "F6",
-            [0x76] = "F7", [0x77] = "F8", [0x78] = "F9", [0x79] = "F10", [0x7A] = "F11", [0x7B] = "F12"
+            [VirtualKeyCodes.VK_F1] = "F1", [VirtualKeyCodes.VK_F2] = "F2", [VirtualKeyCodes.VK_F3] = "F3", 
+            [VirtualKeyCodes.VK_F4] = "F4", [VirtualKeyCodes.VK_F5] = "F5", [VirtualKeyCodes.VK_F6] = "F6",
+            [VirtualKeyCodes.VK_F7] = "F7", [VirtualKeyCodes.VK_F8] = "F8", [VirtualKeyCodes.VK_F9] = "F9", 
+            [VirtualKeyCodes.VK_F10] = "F10", [VirtualKeyCodes.VK_F11] = "F11", [VirtualKeyCodes.VK_F12] = "F12"
         };
 
-        public static void DisplayTextString(float scale, float x, float y, string text, uint font = 4, uint[] rgba = null)
+        /// <summary>
+        /// Displays a text string on the screen at the specified position with the given scale and font.
+        /// </summary>
+        /// <param name="scale">The scale of the text (0.0 to 1.0).</param>
+        /// <param name="x">The X coordinate of the text position (0.0 to 1.0, where 0.0 is left edge).</param>
+        /// <param name="y">The Y coordinate of the text position (0.0 to 1.0, where 0.0 is top edge).</param>
+        /// <param name="text">The text string to display.</param>
+        /// <param name="font">The font to use for the text. Defaults to DisplayConstants.DefaultFont.</param>
+        /// <param name="rgba">Optional RGBA color array [R, G, B, A] for the text color. If null, uses default color.</param>
+        public static void DisplayTextString(float scale, float x, float y, string text, uint font = DisplayConstants.DefaultFont, uint[] rgba = null)
         {
             SET_TEXT_FONT(font);
             SET_TEXT_SCALE(scale, scale);
@@ -44,6 +71,10 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             DISPLAY_TEXT_WITH_LITERAL_STRING(x, y, "STRING", text);
         }
 
+        /// <summary>
+        /// Checks if a cutscene is currently active in the game.
+        /// </summary>
+        /// <returns>True if a cutscene is loaded and not finished, otherwise false.</returns>
         public static bool IsCutsceneActive()
         {
             if (HAS_CUTSCENE_LOADED())
@@ -52,6 +83,11 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             return false;
         }
 
+        /// <summary>
+        /// Gets the name of the month for the given month number (1-12).
+        /// </summary>
+        /// <param name="month">The month number (1 = January, 12 = December).</param>
+        /// <returns>The name of the month. Returns "January" for invalid values (0 or out of range).</returns>
         public static string GetMonthName(uint month)
         {
             if (month <= 0) return Months[0];
@@ -60,6 +96,11 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             return Months[month - 1];
         }
 
+        /// <summary>
+        /// Gets the name of the day of the week for the given day number (1-7).
+        /// </summary>
+        /// <param name="day">The day number (1 = Sunday, 7 = Saturday).</param>
+        /// <returns>The name of the day. Returns "Sunday" for invalid values (0 or out of range).</returns>
         public static string GetDayName(uint day)
         {
             if (day <= 0) return Days[0];
@@ -68,6 +109,11 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             return Days[day - 1];
         }
 
+        /// <summary>
+        /// Gets the ordinal suffix (st, nd, rd, th) for a given number.
+        /// </summary>
+        /// <param name="number">The number to get the suffix for.</param>
+        /// <returns>The ordinal suffix string (st, nd, rd, or th).</returns>
         public static string GetNumberSuffix(uint number)
         {
             var lastTwo = number % 100;
@@ -82,12 +128,23 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             }
         }
 
-        public static string PadNumberWithZero(int number)
+        /// <summary>
+        /// Formats a number as a string with a leading zero if it's less than 10.
+        /// </summary>
+        /// <param name="number">The number to format.</param>
+        /// <returns>A string representation of the number with a leading zero if less than 10 (e.g., "09" for 9).</returns>
+        public static string GetPaddedNumber(int number)
         {
             if (number < 10) return "0" + number.ToString();
             return number.ToString();
         }
 
+        /// <summary>
+        /// Parses a comma-separated string into an array of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array (must be a value type).</typeparam>
+        /// <param name="value">The comma-separated string to parse (e.g., "255,200,0,255").</param>
+        /// <returns>An array of type T containing the parsed values.</returns>
         public static T[] ParseArray<T>(string value) where T : struct
         {
             string[] parts = value.Split(',');
@@ -97,66 +154,137 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             return result;
         }
 
+        /// <summary>
+        /// Gets the human-readable name of a virtual key code.
+        /// </summary>
+        /// <param name="virtualKeyCode">The Windows virtual key code.</param>
+        /// <returns>The name of the key (e.g., "A", "Left Arrow", "F1"). Returns "Key {hex}" if the key is not recognized.</returns>
         public static string GetKeyName(int virtualKeyCode)
         {
             return KeyNames.TryGetValue(virtualKeyCode, out string name) ? name : "Key " + virtualKeyCode.ToString("X");
         }
 
-        // converts virtual key code to GTA IV key texture code for use with ~k~ format
+        /// <summary>
+        /// Converts a Windows virtual key code to a GTA IV key texture code for use with the ~k~ format in help text.
+        /// </summary>
+        /// <param name="virtualKeyCode">The Windows virtual key code.</param>
+        /// <returns>The GTA IV key texture code. Returns the original virtual key code if no mapping exists.</returns>
         public static int GetGTAIVKeyTextureCode(int virtualKeyCode)
         {
             // GTA IV key texture codes mapping
             // letters: A-Z map to 1-26
-            if (virtualKeyCode >= 0x41 && virtualKeyCode <= 0x5A) // A-Z
-                return virtualKeyCode - 0x40; // A=1, B=2, etc.
+            if (virtualKeyCode >= VirtualKeyCodes.VK_LETTERS_START && virtualKeyCode <= VirtualKeyCodes.VK_LETTERS_END)
+                return virtualKeyCode - GTAIVKeyTextureCodes.LETTER_OFFSET;
             
             // numbers: 0-9 map to 27-36
-            if (virtualKeyCode >= 0x30 && virtualKeyCode <= 0x39) // 0-9
-                return virtualKeyCode - 0x09; // 0=27, 1=28, etc.
+            if (virtualKeyCode >= VirtualKeyCodes.VK_NUMBERS_START && virtualKeyCode <= VirtualKeyCodes.VK_NUMBERS_END)
+                return virtualKeyCode - GTAIVKeyTextureCodes.NUMBER_OFFSET;
             
             // arrow keys
-            if (virtualKeyCode == 0x25) return 37; // Left Arrow
-            if (virtualKeyCode == 0x26) return 38; // Up Arrow
-            if (virtualKeyCode == 0x27) return 39; // Right Arrow
-            if (virtualKeyCode == 0x28) return 40; // Down Arrow
+            if (virtualKeyCode == VirtualKeyCodes.VK_LEFT) return GTAIVKeyTextureCodes.TEXTURE_LEFT_ARROW;
+            if (virtualKeyCode == VirtualKeyCodes.VK_UP) return GTAIVKeyTextureCodes.TEXTURE_UP_ARROW;
+            if (virtualKeyCode == VirtualKeyCodes.VK_RIGHT) return GTAIVKeyTextureCodes.TEXTURE_RIGHT_ARROW;
+            if (virtualKeyCode == VirtualKeyCodes.VK_DOWN) return GTAIVKeyTextureCodes.TEXTURE_DOWN_ARROW;
             
             // special keys
-            if (virtualKeyCode == 0x20) return 41; // Space
-            if (virtualKeyCode == 0x0D) return 42; // Enter
-            if (virtualKeyCode == 0x1B) return 43; // Escape
-            if (virtualKeyCode == 0x08) return 44; // Backspace
-            if (virtualKeyCode == 0x09) return 45; // Tab
-            if (virtualKeyCode == 0x2E) return 46; // Delete
-            if (virtualKeyCode == 0x2D) return 47; // Insert
-            if (virtualKeyCode == 0x21) return 48; // Page Up
-            if (virtualKeyCode == 0x22) return 49; // Page Down
-            if (virtualKeyCode == 0x23) return 50; // End
-            if (virtualKeyCode == 0x24) return 51; // Home
+            if (virtualKeyCode == VirtualKeyCodes.VK_SPACE) return GTAIVKeyTextureCodes.TEXTURE_SPACE;
+            if (virtualKeyCode == VirtualKeyCodes.VK_ENTER) return GTAIVKeyTextureCodes.TEXTURE_ENTER;
+            if (virtualKeyCode == VirtualKeyCodes.VK_ESCAPE) return GTAIVKeyTextureCodes.TEXTURE_ESCAPE;
+            if (virtualKeyCode == VirtualKeyCodes.VK_BACKSPACE) return GTAIVKeyTextureCodes.TEXTURE_BACKSPACE;
+            if (virtualKeyCode == VirtualKeyCodes.VK_TAB) return GTAIVKeyTextureCodes.TEXTURE_TAB;
+            if (virtualKeyCode == VirtualKeyCodes.VK_DELETE) return GTAIVKeyTextureCodes.TEXTURE_DELETE;
+            if (virtualKeyCode == VirtualKeyCodes.VK_INSERT) return GTAIVKeyTextureCodes.TEXTURE_INSERT;
+            if (virtualKeyCode == VirtualKeyCodes.VK_PAGE_UP) return GTAIVKeyTextureCodes.TEXTURE_PAGE_UP;
+            if (virtualKeyCode == VirtualKeyCodes.VK_PAGE_DOWN) return GTAIVKeyTextureCodes.TEXTURE_PAGE_DOWN;
+            if (virtualKeyCode == VirtualKeyCodes.VK_END) return GTAIVKeyTextureCodes.TEXTURE_END;
+            if (virtualKeyCode == VirtualKeyCodes.VK_HOME) return GTAIVKeyTextureCodes.TEXTURE_HOME;
             
             // function keys: F1-F12 map to 52-63
-            if (virtualKeyCode >= 0x70 && virtualKeyCode <= 0x7B) // F1-F12
-                return virtualKeyCode - 0x1C; // F1=52, F2=53, etc.
+            if (virtualKeyCode >= VirtualKeyCodes.VK_FUNCTION_START && virtualKeyCode <= VirtualKeyCodes.VK_FUNCTION_END)
+                return virtualKeyCode - GTAIVKeyTextureCodes.FUNCTION_OFFSET;
             
             // plus/minus keys
-            if (virtualKeyCode == 0xBB) return 64; // Plus/Equals
-            if (virtualKeyCode == 0xBD) return 65; // Minus/Underscore
+            if (virtualKeyCode == VirtualKeyCodes.VK_PLUS) return GTAIVKeyTextureCodes.TEXTURE_PLUS;
+            if (virtualKeyCode == VirtualKeyCodes.VK_MINUS) return GTAIVKeyTextureCodes.TEXTURE_MINUS;
             
             // default: return the virtual key code as-is (may not work for all keys)
             return virtualKeyCode;
         }
 
-        // returns a formatted string with key texture code for use in help text
+        /// <summary>
+        /// Gets a formatted string with GTA IV key texture code for use in help text (e.g., "~k~1~" for the A key).
+        /// </summary>
+        /// <param name="virtualKeyCode">The Windows virtual key code.</param>
+        /// <returns>A formatted string with the key texture code wrapped in ~k~ tags.</returns>
         public static string GetKeyTextureString(int virtualKeyCode)
         {
             int keyCode = GetGTAIVKeyTextureCode(virtualKeyCode);
             return $"~k~{keyCode}~";
         }
 
-        public static void DisplayHelpText(string helpText)
+        /// <summary>
+        /// Displays help text on the screen using GTA IV's help text system.
+        /// </summary>
+        /// <param name="helpText">The help text to display. Supports GXT formatting codes (e.g., ~y~ for yellow, ~n~ for newline).</param>
+        /// <param name="gxtPlaceholder">The GXT placeholder string to use for text replacement. Defaults to "PLACEHOLDER_1".</param>
+        public static void DisplayHelpText(string helpText, string gxtPlaceholder = "PLACEHOLDER_1")
         {
-            string targetReplacementGXT = "PLACEHOLDER_1";
-            IVText.TheIVText.ReplaceTextOfTextLabel(targetReplacementGXT, helpText);
-            PRINT_HELP(targetReplacementGXT);
+            IVText.TheIVText.ReplaceTextOfTextLabel(gxtPlaceholder, helpText);
+            PRINT_HELP(gxtPlaceholder);
+        }
+        
+        /// <summary>
+        /// Logs an error to a file for debugging purposes.
+        /// </summary>
+        /// <param name="location">A string describing where the error occurred (e.g., "Main.OnTick", "InputHandler.HandleKeys").</param>
+        /// <param name="ex">The exception that was thrown.</param>
+        public static void LogError(string location, Exception ex)
+        {
+            // write to a log file for debugging
+            try
+            {
+                string logPath = string.Format("{0}\\IVSDKDotNet\\scripts\\{1}.log", IVGame.GameStartupPath, Config.scriptName);
+                string logMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Error in {location}: {ex.GetType().Name} - {ex.Message}\nStack Trace: {ex.StackTrace}\n\n";
+                System.IO.File.AppendAllText(logPath, logMessage);
+            }
+            catch
+            {
+                // if logging fails, at least try to display in-game
+                try { PRINT_HELP("ERROR_LOG_FAILED"); }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Creates an RGBA color array for disabled display opacity (35%).
+        /// </summary>
+        /// <returns>An RGBA array [255, 255, 255, 89] representing white at 35% opacity.</returns>
+        public static uint[] CreateDisabledOpacityRgba()
+        {
+            return new uint[] { DisplayConstants.FullOpacity, DisplayConstants.FullOpacity, DisplayConstants.FullOpacity, DisplayConstants.DisabledOpacity };
+        }
+
+        /// <summary>
+        /// Validates that an RGBA array has at least 4 elements (R, G, B, A).
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array (must be a value type).</typeparam>
+        /// <param name="rgba">The RGBA array to validate.</param>
+        /// <returns>True if the array is not null and has at least 4 elements, otherwise false.</returns>
+        public static bool IsValidRgbaArray<T>(T[] rgba) where T : struct
+        {
+            return rgba != null && rgba.Length >= 4;
+        }
+
+        /// <summary>
+        /// Validates and ensures a font value is within the valid range of fonts.
+        /// </summary>
+        /// <param name="font">The font value to validate.</param>
+        /// <returns>The font value if it's valid, otherwise returns DisplayConstants.DefaultFont.</returns>
+        public static uint ValidateFont(uint font)
+        {
+            if (DisplayConstants.ValidFonts.Contains(font))
+                return font;
+            return DisplayConstants.DefaultFont;
         }
     }
 }

@@ -49,6 +49,10 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="DisplayConstants.cs" />
+    <Compile Include="DisplayIndex.cs" />
+    <Compile Include="KeyBinding.cs" />
+    <Compile Include="KeyConstants.cs" />
     <Compile Include="StaminaManager.cs" />
     <Compile Include="InputHandler.cs" />
     <Compile Include="Utils.cs" />

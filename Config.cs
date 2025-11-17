@@ -1,10 +1,13 @@
 using System;
 using System.IO;
-using System.Globalization;
 using IVSDKDotNet;
 
 namespace SenorGPT.GTAIV.ChittyInfoDisplay
 {
+    /// <summary>
+    /// Manages all configuration settings for the mod, including display positions, colors, key bindings, and display toggles.
+    /// Handles loading from and saving to an INI configuration file.
+    /// </summary>
     public class Config
     {
         #region Config Variable Definitions & Initializations        
@@ -94,31 +97,10 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
 
         #endregion
 
-        #region Config Load Methods
-        public static Config Load()
-        {
-            Config config = new Config();
-
-            if (!File.Exists(configFilePath))
-            {
-                File.WriteAllText(configFilePath, "");
-                IVGame.Console.Print("Config file created");
-            }
-
-            config._settingsFile = new SettingsFile(configFilePath);
-            
-            // explicitly load the file to ensure existing values are read
-            if (!config._settingsFile.Load())
-                IVGame.Console.Print("Failed to load config file");
-            
-            config.Load(config._settingsFile);
-            
-            // save after loading to ensure any new keys get their default values written
-            config._settingsFile.Save();
-            
-            return config;
-        }
-
+        #region Config Save Methods
+        /// <summary>
+        /// Saves all current configuration settings to the INI file.
+        /// </summary>
         public void Save()
         {
             if (_settingsFile == null)
@@ -253,6 +235,36 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             SaveValue(settings, section, "SimpleTextScale", DisplayStaminaSimple.Scale.ToString());
             SaveValue(settings, section, "SimpleTextFont", DisplayStaminaSimple.Font.ToString());
         }
+        #endregion
+
+        #region Config Load Methods
+        /// <summary>
+        /// Loads the configuration from the INI file, or creates a new file with default values if it doesn't exist.
+        /// </summary>
+        /// <returns>A Config instance with loaded or default settings.</returns>
+        public static Config Load()
+        {
+            Config config = new Config();
+
+            if (!File.Exists(configFilePath))
+            {
+                File.WriteAllText(configFilePath, "");
+                IVGame.Console.Print("Config file created");
+            }
+
+            config._settingsFile = new SettingsFile(configFilePath);
+            
+            // explicitly load the file to ensure existing values are read
+            if (!config._settingsFile.Load())
+                IVGame.Console.Print("Failed to load config file");
+            
+            config.Load(config._settingsFile);
+            
+            // save after loading to ensure any new keys get their default values written
+            config._settingsFile.Save();
+            
+            return config;
+        }
 
         public void Load(SettingsFile settings)
         {
@@ -286,7 +298,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         }
         #endregion
 
-        #region Config Load Helpers
+        #region Config Load & Save Helpers
         private void SaveValue(SettingsFile settings, string section, string key, string value)
         {
             if (!settings.DoesKeyExists(section, key))
@@ -348,7 +360,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             DisplayTime.X = LoadFloat(settings, section, "PositionX", 0.0875f);
             DisplayTime.Y = LoadFloat(settings, section, "PositionY", 0.69f);
             DisplayTime.Scale = LoadFloat(settings, section, "Scale", 0.2f);
-            DisplayTime.Font = (uint)LoadInteger(settings, section, "Font", 4);
+            DisplayTime.Font = Utils.ValidateFont((uint)LoadInteger(settings, section, "Font", (int)DisplayConstants.DefaultFont));
         }
 
         private void LoadDateSettings(SettingsFile settings)
@@ -360,7 +372,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             DisplayDate.X = LoadFloat(settings, section, "PositionX", 0.04f);
             DisplayDate.Y = LoadFloat(settings, section, "PositionY", 0.71f);
             DisplayDate.Scale = LoadFloat(settings, section, "Scale", 0.2f);
-            DisplayDate.Font = (uint)LoadInteger(settings, section, "Font", 4);
+            DisplayDate.Font = Utils.ValidateFont((uint)LoadInteger(settings, section, "Font", (int)DisplayConstants.DefaultFont));
         }
 
         private void LoadDaysPassedSettings(SettingsFile settings)
@@ -372,14 +384,46 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             DisplayPassed.X = LoadFloat(settings, section, "PositionX", 0.07f);
             DisplayPassed.Y = LoadFloat(settings, section, "PositionY", 0.73f);
             DisplayPassed.Scale = LoadFloat(settings, section, "Scale", 0.2f);
-            DisplayPassed.Font = (uint)LoadInteger(settings, section, "Font", 4);
+            DisplayPassed.Font = Utils.ValidateFont((uint)LoadInteger(settings, section, "Font", (int)DisplayConstants.DefaultFont));
         }
 
         private int LoadHexKey(SettingsFile settings, string section, string key, string defaultValue)
         {
             string hexValue = LoadString(settings, section, key, defaultValue);
             hexValue = hexValue.Replace("0x", "").Replace("0X", "");
-            return Convert.ToInt32(hexValue, 16);
+            
+            // validate and parse hex string
+            try
+            {
+                return Convert.ToInt32(hexValue, 16);
+            }
+            catch (Exception ex) when (ex is FormatException || ex is OverflowException)
+            {
+                // if hex parsing fails or value is too large, return the default value (which we control and know is valid)
+                string defaultHex = defaultValue.Replace("0x", "").Replace("0X", "");
+                return Convert.ToInt32(defaultHex, 16);
+            }
+        }
+
+        /// <summary>
+        /// Parses an RGBA array string with error handling, falling back to default values if parsing fails.
+        /// </summary>
+        /// <typeparam name="T">The numeric type for the array elements (int or uint).</typeparam>
+        /// <param name="rgbaString">The comma-separated RGBA string to parse (e.g., "255,200,0,255").</param>
+        /// <param name="defaultValue">The default RGBA array to use if parsing fails.</param>
+        /// <returns>The parsed RGBA array, or the default value if parsing fails.</returns>
+        private T[] ParseRgbaArray<T>(string rgbaString, T[] defaultValue) where T : struct
+        {
+            try
+            {
+                return Utils.ParseArray<T>(rgbaString);
+            }
+            catch (Exception ex)
+            {
+                // if parsing fails, log error and return default value
+                Utils.LogError($"Config.ParseRgbaArray parsing '{rgbaString}'", ex);
+                return defaultValue;
+            }
         }
 
         private void LoadInputSettings(SettingsFile settings)
@@ -412,7 +456,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             DisplayStaminaValue.X = LoadFloat(settings, section, "StaminaValueTextPositionX", 0.016f);
             DisplayStaminaValue.Y = LoadFloat(settings, section, "StaminaValueTextPositionY", 0.955f);
             DisplayStaminaValue.Scale = LoadFloat(settings, section, "StaminaValueTextScale", 0.175f);
-            DisplayStaminaValue.Font = (uint)LoadInteger(settings, section, "StaminaValueTextFont", 4);
+            DisplayStaminaValue.Font = Utils.ValidateFont((uint)LoadInteger(settings, section, "StaminaValueTextFont", (int)DisplayConstants.DefaultFont));
         }
 
         private void LoadStaminaTextBarSettings(SettingsFile settings)
@@ -444,7 +488,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             DisplayStamina.X = LoadFloat(settings, section, "PositionX", 0.02f);
             DisplayStamina.Y = LoadFloat(settings, section, "PositionY", 0.97f);
             DisplayStamina.Scale = LoadFloat(settings, section, "Scale", 0.2f);
-            DisplayStamina.Font = (uint)LoadInteger(settings, section, "Font", 4);
+            DisplayStamina.Font = Utils.ValidateFont((uint)LoadInteger(settings, section, "Font", (int)DisplayConstants.DefaultFont));
         }
 
         private void LoadStaminaRectangleBarSettings(SettingsFile settings)
@@ -463,16 +507,16 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             StaminaBarRectangle.BorderThickness = LoadFloat(settings, section, "BorderThickness", 0.002f);
             
             string borderRgba = LoadString(settings, section, "BorderColorRGBA", "140,140,140,255");
-            StaminaBarRectangle.BorderColorRGBA = Utils.ParseArray<int>(borderRgba);
+            StaminaBarRectangle.BorderColorRGBA = ParseRgbaArray(borderRgba, StaminaBarRectangle.BorderColorRGBA);
             
             string filledRgba = LoadString(settings, section, "FilledColorRGBA", "255,255,255,255");
-            StaminaBarRectangle.FilledColorRGBA = Utils.ParseArray<int>(filledRgba);
+            StaminaBarRectangle.FilledColorRGBA = ParseRgbaArray(filledRgba, StaminaBarRectangle.FilledColorRGBA);
             
             string emptyRgba = LoadString(settings, section, "EmptyColorRGBA", "0,0,0,255");
-            StaminaBarRectangle.EmptyColorRGBA = Utils.ParseArray<int>(emptyRgba);
+            StaminaBarRectangle.EmptyColorRGBA = ParseRgbaArray(emptyRgba, StaminaBarRectangle.EmptyColorRGBA);
             
             string cantSprintRgba = LoadString(settings, section, "CantSprintColorRGBA", "255,200,0,255");
-            StaminaBarRectangle.CantSprintColorRGBA = Utils.ParseArray<int>(cantSprintRgba);
+            StaminaBarRectangle.CantSprintColorRGBA = ParseRgbaArray(cantSprintRgba, StaminaBarRectangle.CantSprintColorRGBA);
         }
 
         private void LoadStaminaSimpleSettings(SettingsFile settings)
@@ -486,13 +530,13 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             // text formatting
             StaminaSimpleFormat = LoadString(settings, section, "SimpleFormat", "Stamina: {0}");
             string staminaBarTextCantSprintRGBA = LoadString(settings, section, "StaminaBarTextCantSprintRGBA", "255,200,0,255");
-            StaminaBarTextCantSprintRGBA = Utils.ParseArray<uint>(staminaBarTextCantSprintRGBA);
+            StaminaBarTextCantSprintRGBA = ParseRgbaArray(staminaBarTextCantSprintRGBA, StaminaBarTextCantSprintRGBA);
 
             // simple text position and scale
             DisplayStaminaSimple.X = LoadFloat(settings, section, "SimpleTextPositionX", 0.02f);
             DisplayStaminaSimple.Y = LoadFloat(settings, section, "SimpleTextPositionY", 0.93f);
             DisplayStaminaSimple.Scale = LoadFloat(settings, section, "SimpleTextScale", 0.2f);
-            DisplayStaminaSimple.Font = (uint)LoadInteger(settings, section, "SimpleTextFont", 4);
+            DisplayStaminaSimple.Font = Utils.ValidateFont((uint)LoadInteger(settings, section, "SimpleTextFont", (int)DisplayConstants.DefaultFont));
         }
         #endregion
     }
@@ -503,7 +547,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         public float X { get; set; }
         public float Y { get; set; }
         public float Scale { get; set; }
-        public uint Font { get; set; } = 4; // default font (shadow)
+        public uint Font { get; set; } = DisplayConstants.DefaultFont; // default font (shadow)
     }
 
     public class ProgressBarTextConfig

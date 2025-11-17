@@ -3,21 +3,36 @@ using static IVSDKDotNet.Native.Natives;
 
 namespace SenorGPT.GTAIV.ChittyInfoDisplay
 {
+    /// <summary>
+    /// Manages the display and calculation of player stamina information.
+    /// </summary>
     public class StaminaManager
     {
         private bool _canPlayerSprint = true;
         private readonly Config _config;
         private readonly InputHandler _inputHandler;
 
-        // public read only property for the canPlayerSprint variable
+        /// <summary>
+        /// Gets a value indicating whether the player can currently sprint based on stamina level.
+        /// </summary>
         public bool CanPlayerSprint => _canPlayerSprint;
 
+        /// <summary>
+        /// Initializes a new instance of the StaminaManager class.
+        /// </summary>
+        /// <param name="config">The configuration object containing display settings.</param>
+        /// <param name="inputHandler">The input handler for checking display states and flashing effects.</param>
         public StaminaManager(Config config, InputHandler inputHandler)
         {
             _config = config;
             _inputHandler = inputHandler;
         }
 
+        /// <summary>
+        /// Creates a text-based progress bar representation of the current stamina level.
+        /// </summary>
+        /// <param name="stamina">The current stamina value.</param>
+        /// <returns>A string representing the stamina progress bar (e.g., "[@@@@@-----]").</returns>
         public string CreateStaminaTextProgressBar(float stamina)
         {
             // clamp stamina between MinStamina and MaxStamina
@@ -35,6 +50,12 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             return _config.ProgressBar.LeftBracket + filled + empty + _config.ProgressBar.RightBracket;
         }
 
+        /// <summary>
+        /// Gets the stamina value formatted as either a raw integer or a percentage.
+        /// </summary>
+        /// <param name="stamina">The current stamina value.</param>
+        /// <param name="asPercentage">If true, returns the stamina as a percentage (0-100). If false, returns the raw clamped stamina value.</param>
+        /// <returns>The stamina value as an integer. Returns 0 if the stamina range is invalid when asPercentage is true.</returns>
         public int GetStaminaProgressBarValue(float stamina, bool asPercentage = false)
         {
             float clampedStamina = Math.Max(_config.ProgressBar.MinStamina, Math.Min(stamina, _config.ProgressBar.MaxStamina));
@@ -46,6 +67,10 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             return (int)Math.Round(normalizedValue * 100);
         }
 
+        /// <summary>
+        /// Updates the internal sprint state based on the current stamina level.
+        /// </summary>
+        /// <param name="currentStamina">The current stamina value.</param>
         public void UpdateSprintState(float currentStamina)
         {
             if (_canPlayerSprint && currentStamina <= _config.ProgressBar.MinStamina)
@@ -54,31 +79,35 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 _canPlayerSprint = true;
         }
 
+        /// <summary>
+        /// Applies the appropriate text color based on whether the player can sprint.
+        /// Sets the text color to the "can't sprint" color if the player cannot sprint.
+        /// </summary>
         public void ApplyStaminaColor()
         {
             if (!_canPlayerSprint)
             {
                 var rgba = _config.StaminaBarTextCantSprintRGBA;
-                if (rgba != null && rgba.Length >= 4)
+                if (Utils.IsValidRgbaArray(rgba))
                     SET_TEXT_COLOUR(rgba[0], rgba[1], rgba[2], rgba[3]);
             }
         }
 
-        private void DisplayStaminaRectangleProgressBar(float currentStamina, bool halfOpacity = false)
+        private void DisplayStaminaRectangleProgressBar(float currentStamina, bool disabledOpacity = false)
         {
             // stamina config data
             ProgressBarRectangleConfig rect = _config.StaminaBarRectangle;
             float normalizedValue = GetStaminaProgressBarValue(currentStamina, asPercentage: true) / 100.0f;
             
             // apply 35% opacity if disabled in adjustment mode
-            int opacityMultiplier = halfOpacity ? 89 : 255;
+            int opacityMultiplier = disabledOpacity ? (int)DisplayConstants.DisabledOpacity : (int)DisplayConstants.FullOpacity;
             
             // draw border (larger rectangle)
             int[] borderRgba = rect.BorderColorRGBA;
-            if (borderRgba != null && borderRgba.Length >= 4)
+            if (Utils.IsValidRgbaArray(borderRgba))
             {
                 int borderR = borderRgba[0], borderG = borderRgba[1], borderB = borderRgba[2];
-                int borderA = borderRgba[3] * opacityMultiplier / 255;
+                int borderA = CalculateOpacity(borderRgba[3], opacityMultiplier);
                 float borderWidth = rect.Width + (rect.BorderThickness * 2);
                 float borderHeight = rect.Height + (rect.BorderThickness * 2);
                 DRAW_RECT(rect.X, rect.Y, borderWidth, borderHeight, borderR, borderG, borderB, borderA);
@@ -86,10 +115,10 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             
             // draw empty background rectangle (full width)
             int[] emptyRgba = rect.EmptyColorRGBA;
-            if (emptyRgba != null && emptyRgba.Length >= 4)
+            if (Utils.IsValidRgbaArray(emptyRgba))
             {
                 int emptyR = emptyRgba[0], emptyG = emptyRgba[1], emptyB = emptyRgba[2];
-                int emptyA = emptyRgba[3] * opacityMultiplier / 255;
+                int emptyA = CalculateOpacity(emptyRgba[3], opacityMultiplier);
                 DRAW_RECT(rect.X, rect.Y, rect.Width, rect.Height, emptyR, emptyG, emptyB, emptyA);
             }
             
@@ -97,10 +126,10 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             if (normalizedValue > 0)
             {
                 int[] filledRgba = _canPlayerSprint ? rect.FilledColorRGBA : rect.CantSprintColorRGBA;
-                if (filledRgba != null && filledRgba.Length >= 4)
+                if (Utils.IsValidRgbaArray(filledRgba))
                 {
                     int filledR = filledRgba[0], filledG = filledRgba[1], filledB = filledRgba[2];
-                    int filledA = filledRgba[3] * opacityMultiplier / 255;
+                    int filledA = CalculateOpacity(filledRgba[3], opacityMultiplier);
                     float filledWidth = rect.Width * normalizedValue;
                     float filledX = rect.X - (rect.Width / 2) + (filledWidth / 2);
                     DRAW_RECT(filledX, rect.Y, filledWidth, rect.Height, filledR, filledG, filledB, filledA);
@@ -108,6 +137,22 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             }
         }
 
+        /// <summary>
+        /// Calculates the opacity value by applying the opacity multiplier to the base alpha value.
+        /// </summary>
+        /// <param name="baseAlpha">The base alpha value (0-255).</param>
+        /// <param name="opacityMultiplier">The opacity multiplier (0-255, typically DisabledOpacity or FullOpacity).</param>
+        /// <returns>The calculated opacity value (0-255).</returns>
+        private int CalculateOpacity(int baseAlpha, int opacityMultiplier)
+        {
+            return baseAlpha * opacityMultiplier / (int)DisplayConstants.FullOpacity;
+        }
+
+        /// <summary>
+        /// Handles the display of all stamina-related UI elements based on the current stamina value.
+        /// Updates sprint state, applies colors, and displays all enabled stamina displays.
+        /// </summary>
+        /// <param name="currentStamina">The current stamina value from the player.</param>
         public void HandleStaminaDisplay(float currentStamina)
         {
             // update sprint state
@@ -116,12 +161,14 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             // apply color if sprint is disabled
             ApplyStaminaColor();
             
-            // display stamina progress bar (index 3)
-            bool showTextBar = _config.ShouldDisplayStaminaTextProgressBar || _inputHandler.ShouldDisplayAtHalfOpacity(3);
-            if (showTextBar && _inputHandler.ShouldDisplayFlash(3))
+            // display stamina progress bar
+            bool textBarDisabledOpacity = _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.StaminaTextBar);
+            bool textBarShouldFlash = _inputHandler.ShouldDisplayFlash(DisplayIndex.StaminaTextBar);
+            bool showTextBar = _config.ShouldDisplayStaminaTextProgressBar || textBarDisabledOpacity;
+            if (showTextBar && textBarShouldFlash)
             {
                 string staminaBar = CreateStaminaTextProgressBar(currentStamina);
-                uint[] rgba = _inputHandler.ShouldDisplayAtHalfOpacity(3) ? new uint[] { 255, 255, 255, 89 } : null;
+                uint[] rgba = textBarDisabledOpacity ? Utils.CreateDisabledOpacityRgba() : null;
                 Utils.DisplayTextString(
                     _config.DisplayStamina.Scale, 
                     _config.DisplayStamina.X, 
@@ -132,14 +179,16 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 );
             }
             
-            // display stamina value (index 4)
-            bool showValue = _config.ShouldDisplayStaminaValue || _inputHandler.ShouldDisplayAtHalfOpacity(4);
-            if (showValue && _inputHandler.ShouldDisplayFlash(4))
+            // display stamina value
+            bool valueDisabledOpacity = _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.StaminaValue);
+            bool valueShouldFlash = _inputHandler.ShouldDisplayFlash(DisplayIndex.StaminaValue);
+            bool showValue = _config.ShouldDisplayStaminaValue || valueDisabledOpacity;
+            if (showValue && valueShouldFlash)
             {
                 string staminaValue = GetStaminaProgressBarValue(currentStamina, _config.DisplayStaminaValueAsPercentage).ToString();
                 if (_config.DisplayStaminaValueAsPercentage) staminaValue += "%";
-                uint[] rgba = _inputHandler.ShouldDisplayAtHalfOpacity(4) 
-                    ? new uint[] { 255, 255, 255, 89 } 
+                uint[] rgba = valueDisabledOpacity 
+                    ? Utils.CreateDisabledOpacityRgba() 
                     : (_canPlayerSprint ? null : _config.StaminaBarTextCantSprintRGBA);
                 Utils.DisplayTextString(
                     _config.DisplayStaminaValue.Scale, 
@@ -151,12 +200,14 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 );
             }
 
-            // display stamina simple format (index 5)
-            bool showSimple = _config.ShouldDisplayStaminaSimple || _inputHandler.ShouldDisplayAtHalfOpacity(5);
-            if (showSimple && _inputHandler.ShouldDisplayFlash(5))
+            // display stamina simple format
+            bool simpleDisabledOpacity = _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.StaminaSimple);
+            bool simpleShouldFlash = _inputHandler.ShouldDisplayFlash(DisplayIndex.StaminaSimple);
+            bool showSimple = _config.ShouldDisplayStaminaSimple || simpleDisabledOpacity;
+            if (showSimple && simpleShouldFlash)
             {
                 string staminaSimple = string.Format(_config.StaminaSimpleFormat, GetStaminaProgressBarValue(currentStamina, false));
-                uint[] rgba = _inputHandler.ShouldDisplayAtHalfOpacity(5) ? new uint[] { 255, 255, 255, 89 } : null;
+                uint[] rgba = simpleDisabledOpacity ? Utils.CreateDisabledOpacityRgba() : null;
                 Utils.DisplayTextString(
                     _config.DisplayStaminaSimple.Scale, 
                     _config.DisplayStaminaSimple.X, 
@@ -167,10 +218,12 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 );
             }
 
-            // display rectangle progress bar (index 6)
-            bool showRectangle = _config.ShouldDisplayStaminaRectangleProgressBar || _inputHandler.ShouldDisplayAtHalfOpacity(6);
-            if (showRectangle && _inputHandler.ShouldDisplayFlash(6))
-                DisplayStaminaRectangleProgressBar(currentStamina, _inputHandler.ShouldDisplayAtHalfOpacity(6));
+            // display rectangle progress bar
+            bool rectangleDisabledOpacity = _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.StaminaRectangle);
+            bool rectangleShouldFlash = _inputHandler.ShouldDisplayFlash(DisplayIndex.StaminaRectangle);
+            bool showRectangle = _config.ShouldDisplayStaminaRectangleProgressBar || rectangleDisabledOpacity;
+            if (showRectangle && rectangleShouldFlash)
+                DisplayStaminaRectangleProgressBar(currentStamina, rectangleDisabledOpacity);
         }
     }
 }

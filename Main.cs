@@ -4,6 +4,10 @@ using static IVSDKDotNet.Native.Natives;
 
 namespace SenorGPT.GTAIV.ChittyInfoDisplay
 {
+    /// <summary>
+    /// Main script entry point for the GTA IV Chitty Info Display mod.
+    /// Manages the game loop and coordinates all display managers.
+    /// </summary>
     public class Main : Script
     {
         #region Config Settings
@@ -33,7 +37,12 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         {
             try
             {
-                playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+                // get player ped pointer and check for zero before conversion
+                UIntPtr playerPedPtr = IVPlayerInfo.FindThePlayerPed();
+                if (playerPedPtr == UIntPtr.Zero)
+                    return;
+                
+                playerPed = IVPed.FromUIntPtr(playerPedPtr);
 
                 // check if the player object exists, player is alive, not in pause menu, and not in a cutscene
                 if (playerPed == null || playerPed.Dead || IS_PAUSE_MENU_ACTIVE() || Utils.IsCutsceneActive())
@@ -50,7 +59,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 }
                 catch (Exception ex)
                 {
-                    LogError("DisplayTextManager.HandleDisplayText", ex);
+                    Utils.LogError("DisplayTextManager.HandleDisplayText", ex);
                 }
                 
                 // handle keyboard input
@@ -60,7 +69,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 }
                 catch (Exception ex)
                 {
-                    LogError("InputHandler.HandleKeys", ex);
+                    Utils.LogError("InputHandler.HandleKeys", ex);
                 }
                 
                 // stamina display
@@ -70,30 +79,14 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 }
                 catch (Exception ex)
                 {
-                    LogError("StaminaManager.HandleStaminaDisplay", ex);
+                    Utils.LogError("StaminaManager.HandleStaminaDisplay", ex);
                 }
             }
             catch (Exception ex)
             {
-                LogError("Main.OnTick", ex);
+                Utils.LogError("Main.OnTick", ex);
             }
         }
 
-        private void LogError(string location, Exception ex)
-        {
-            // write to a log file for debugging
-            try
-            {
-                string logPath = string.Format("{0}\\IVSDKDotNet\\scripts\\{1}.log", IVGame.GameStartupPath, Config.scriptName);
-                string logMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Error in {location}: {ex.GetType().Name} - {ex.Message}\nStack Trace: {ex.StackTrace}\n\n";
-                System.IO.File.AppendAllText(logPath, logMessage);
-            }
-            catch
-            {
-                // if logging fails, at least try to display in-game
-                try { PRINT_HELP("ERROR_LOG_FAILED"); }
-                catch { }
-            }
-        }
     }
 }

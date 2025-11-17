@@ -1,8 +1,12 @@
+using System;
 using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
 
 namespace SenorGPT.GTAIV.ChittyInfoDisplay
 {
+    /// <summary>
+    /// Manages the display of time, date, and days passed information on the screen.
+    /// </summary>
     public class DisplayTextManager
     {
         private string _displayMessageDate;
@@ -10,12 +14,20 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         private readonly Config _config;
         private readonly InputHandler _inputHandler;
 
+        /// <summary>
+        /// Initializes a new instance of the DisplayTextManager class.
+        /// </summary>
+        /// <param name="config">The configuration object containing display settings.</param>
+        /// <param name="inputHandler">The input handler for checking display states and flashing effects.</param>
         public DisplayTextManager(Config config, InputHandler inputHandler)
         {
             _config = config;
             _inputHandler = inputHandler;
         }
 
+        /// <summary>
+        /// Updates the internal date and time display strings.
+        /// </summary>
         public void UpdateDisplayText()
         {
             UpdateDisplayTextDate();
@@ -29,16 +41,15 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 GET_CURRENT_DATE(out uint day, out uint month);
                 uint currentDay = GET_CURRENT_DAY_OF_WEEK();
 
-                string temporaryMessage = Utils.GetMonthName(month) + " " + day.ToString() + 
-                                         Utils.GetNumberSuffix(day) + ", " + 
-                                         Utils.GetDayName(currentDay + 1);
+                string temporaryMessage = $"{Utils.GetMonthName(month)} {day}{Utils.GetNumberSuffix(day)}, {Utils.GetDayName(currentDay + 1)}";
 
                 if (_displayMessageDate != temporaryMessage)
                     _displayMessageDate = temporaryMessage;
             }
-            catch
+            catch (Exception ex)
             {
-                // if date update fails, keep previous message
+                // if date update fails, log error and keep previous message
+                Utils.LogError("DisplayTextManager.UpdateDisplayTextDate", ex);
             }
         }
 
@@ -52,28 +63,32 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 if (!_config.TwentyFourHourMode && hour > 12) 
                     hour -= 12;
 
-                string temporaryMessage = Utils.PadNumberWithZero(hour) + ":" + Utils.PadNumberWithZero(minute) + 
-                                         (!_config.TwentyFourHourMode ? timeSuffix : "");
+                string temporaryMessage = $"{Utils.GetPaddedNumber(hour)}:{Utils.GetPaddedNumber(minute)}{(!_config.TwentyFourHourMode ? timeSuffix : "")}";
 
                 if (_displayMessageTime != temporaryMessage)
                     _displayMessageTime = temporaryMessage;
             }
-            catch
+            catch (Exception ex)
             {
-                // if time update fails, keep previous message
+                // if time update fails, log error and keep previous message
+                Utils.LogError("DisplayTextManager.UpdateDisplayTextTime", ex);
             }
         }
 
+        /// <summary>
+        /// Handles the display of all text-based UI elements (time, date, days passed).
+        /// Updates the display strings and renders them if enabled.
+        /// </summary>
         public void HandleDisplayText()
         {
             // check if the values have changed, only update if they have
             UpdateDisplayText();
 
-            // time display (index 0)
-            bool showTime = _config.ShouldDisplayTime || _inputHandler.ShouldDisplayAtHalfOpacity(0);
-            if (showTime && _inputHandler.ShouldDisplayFlash(0))
+            // time display
+            bool showTime = _config.ShouldDisplayTime || _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.Time);
+            if (showTime && _inputHandler.ShouldDisplayFlash(DisplayIndex.Time))
             {
-                uint[] rgba = _inputHandler.ShouldDisplayAtHalfOpacity(0) ? new uint[] { 255, 255, 255, 89 } : null;
+                uint[] rgba = _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.Time) ? Utils.CreateDisabledOpacityRgba() : null;
                 Utils.DisplayTextString(
                     _config.DisplayTime.Scale,
                     _config.DisplayTime.X,
@@ -84,11 +99,11 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 );
             }
 
-            // date display (index 1)
-            bool showDate = _config.ShouldDisplayDate || _inputHandler.ShouldDisplayAtHalfOpacity(1);
-            if (showDate && _inputHandler.ShouldDisplayFlash(1))
+            // date display
+            bool showDate = _config.ShouldDisplayDate || _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.Date);
+            if (showDate && _inputHandler.ShouldDisplayFlash(DisplayIndex.Date))
             {
-                uint[] rgba = _inputHandler.ShouldDisplayAtHalfOpacity(1) ? new uint[] { 255, 255, 255, 89 } : null;
+                uint[] rgba = _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.Date) ? Utils.CreateDisabledOpacityRgba() : null;
                 Utils.DisplayTextString(
                     _config.DisplayDate.Scale,
                     _config.DisplayDate.X,
@@ -99,17 +114,17 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 );
             }
 
-            // days passed display (index 2)
-            bool showDaysPassed = _config.ShouldDisplayDaysPassed || _inputHandler.ShouldDisplayAtHalfOpacity(2);
-            if (showDaysPassed && _inputHandler.ShouldDisplayFlash(2))
+            // days passed display
+            bool showDaysPassed = _config.ShouldDisplayDaysPassed || _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.DaysPassed);
+            if (showDaysPassed && _inputHandler.ShouldDisplayFlash(DisplayIndex.DaysPassed))
             {
-                int days = GET_INT_STAT(260);
-                uint[] rgba = _inputHandler.ShouldDisplayAtHalfOpacity(2) ? new uint[] { 255, 255, 255, 89 } : null;
+                int days = GET_INT_STAT(DisplayConstants.StatIdDaysPassed);
+                uint[] rgba = _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.DaysPassed) ? Utils.CreateDisabledOpacityRgba() : null;
                 Utils.DisplayTextString(
                     _config.DisplayPassed.Scale,
                     _config.DisplayPassed.X,
                     _config.DisplayPassed.Y,
-                    "Days Passed: " + days.ToString(),
+                    $"Days Passed: {days}",
                     _config.DisplayPassed.Font,
                     rgba
                 );
