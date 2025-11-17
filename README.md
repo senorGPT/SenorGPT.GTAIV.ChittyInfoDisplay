@@ -262,6 +262,3 @@ IVSDKDotNet\scripts\SenorGPT.GTAIV.ChittyInfoDisplay.log
 | **Type Safety** | High | ✅ Excellent |
 
 ---
-
-**Enjoy your enhanced GTA IV experience!**
-
