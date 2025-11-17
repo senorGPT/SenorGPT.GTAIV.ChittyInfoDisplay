@@ -35,6 +35,10 @@ A comprehensive information display mod for Grand Theft Auto IV that shows time,
   - `H` - Switch font
   - `T` - Toggle display on/off
 
+## Download
+
+Download the latest release from the [Releases page](https://github.com/senorGPT/SenorGPT.GTAIV.ChittyInfoDisplay/releases/latest).
+
 ## Installation
 
 1. **Requirements:**
@@ -99,6 +103,8 @@ Key bindings use hexadecimal virtual key codes. Common keys:
 | Minus (-/_) | 0xBD |
 | F1-F12 | 0x70-0x7B |
 | Shift | 0x10 |
+
+For all key bindings, visit - https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 
 ### Color Format
 
