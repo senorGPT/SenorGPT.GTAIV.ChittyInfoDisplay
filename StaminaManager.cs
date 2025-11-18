@@ -157,7 +157,8 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         /// <param name="playerPed">The player ped to check if in a vehicle.</param>
         public void HandleStaminaDisplay(float currentStamina, IVPed playerPed)
         {
-            if (IVVehicle.FromUIntPtr(playerPed.GetVehicle()) != null)
+            // only skip stamina display if in a vehicle AND not in adjustment mode
+            if (!_inputHandler.IsAdjustmentModeActive && IVVehicle.FromUIntPtr(playerPed.GetVehicle()) != null)
                 return;
             
             // update sprint state

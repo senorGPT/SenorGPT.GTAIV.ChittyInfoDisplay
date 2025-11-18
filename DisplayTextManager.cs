@@ -157,22 +157,28 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
 
                 // get the current vehicle of the player using IVSDKDotNet methods
                 IVVehicle currentVehicle = IVVehicle.FromUIntPtr(playerPed.GetVehicle());
-                if (currentVehicle == null || !currentVehicle.IsDriver(playerPed) || !currentVehicle.VehicleFlags.EngineOn)
+                
+                // only skip vehicle check if in adjustment mode (to show speedometer even when not in vehicle)
+                if (!_inputHandler.IsAdjustmentModeActive && (currentVehicle == null || !currentVehicle.IsDriver(playerPed) || !currentVehicle.VehicleFlags.EngineOn))
                     return;
 
-                float speedMS = currentVehicle.GetSpeed();
-                int speed = _config.SpeedometerUseMPH 
-                    ? (int)Math.Round(speedMS * 2.23694f)    // convert m/s to MPH
-                    : (int)Math.Round(speedMS * 3.6f);       // convert m/s to KM/H
-                string speedText = speed.ToString() + unit;
+                // if in a valid vehicle, update speed and RPM
+                if (currentVehicle != null && currentVehicle.IsDriver(playerPed) && currentVehicle.VehicleFlags.EngineOn)
+                {
+                    float speedMS = currentVehicle.GetSpeed();
+                    int speed = _config.SpeedometerUseMPH 
+                        ? (int)Math.Round(speedMS * 2.23694f)    // convert m/s to MPH
+                        : (int)Math.Round(speedMS * 3.6f);       // convert m/s to KM/H
+                    string speedText = speed.ToString() + unit;
 
-                // add RPM if enabled (user will implement RPM retrieval)
-                if (_config.SpeedometerShowRPM)
-                    speedText += $"  | {Math.Round(currentVehicle.EngineRPM * 10000)} RPM";
+                    // add RPM if enabled (user will implement RPM retrieval)
+                    if (_config.SpeedometerShowRPM)
+                        speedText += $"  | {Math.Round(currentVehicle.EngineRPM * 10000)} RPM";
 
-                // only update if changed
-                if (_displayMessageSpeed != speedText)
-                    _displayMessageSpeed = speedText;
+                    // only update if changed
+                    if (_displayMessageSpeed != speedText)
+                        _displayMessageSpeed = speedText;
+                }
 
                 // display the speedometer
                 uint[] rgba = _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.Speedometer) ? Utils.CreateDisabledOpacityRgba() : null;
