@@ -1,6 +1,6 @@
 # GTA IV Chitty Info Display Mod
 
-A comprehensive information display mod for Grand Theft Auto IV that shows time, date, days passed, and detailed stamina information with customizable styles, formats, positioning, fonts, and colors.
+A information display mod for Grand Theft Auto IV that shows time, date, days passed, vehicle speedometer with RPM, and stamina information with customizable styles, formats, positioning, fonts, and colors.
 
 ## Features
 
@@ -9,6 +9,13 @@ A comprehensive information display mod for Grand Theft Auto IV that shows time,
 - Current date with day of week
 - Days passed counter
 - Customizable position, scale, and font
+
+### **Speedometer Display**
+- Real-time vehicle speed display (MPH or KM/H)
+- Optional RPM display alongside speed
+- Shows when player is driving (engine on, is driver)
+- Customizable position, scale, and font
+- Default value shown in adjustment mode when not in vehicle
 
 ### **Stamina Display Options**
 - **Text Progress Bar**: Visual progress bar using characters (e.g., `[@@@@@-----]`)
@@ -81,6 +88,7 @@ Edit the `.ini` file directly. The file is organized into sections:
 - `[Time]` - Time display settings
 - `[Date]` - Date display settings
 - `[DaysPassed]` - Days passed display settings
+- `[Speedometer]` - Speedometer display settings (speed, RPM, units)
 - `[Input]` - Key bindings (hexadecimal virtual key codes)
 - `[Stamina]` - Stamina value display settings
 - `[StaminaTextBar]` - Text progress bar settings
@@ -130,6 +138,15 @@ Where the values are: Red, Green, Blue, Alpha (0-255 each)
 - Toggle on/off
 - Shows total days passed in the game
 - Customizable position, scale, and font
+
+### Speedometer Display
+- Toggle on/off
+- Shows vehicle speed in MPH or KM/H
+- Optional RPM display (toggle on/off)
+- Only displays when player is driving (engine on, is driver)
+- Shows default "0 MPH" or "0 KM/H" when not in vehicle (useful for adjustment mode)
+- Customizable position, scale, and font
+- Format: "60 MPH" or "60 MPH | 3000 RPM" (if RPM enabled)
 
 ### Stamina Text Progress Bar
 - Toggle on/off
@@ -187,7 +204,7 @@ Where the values are: Red, Green, Blue, Alpha (0-255 each)
 ### Architecture
 - **Main.cs**: Entry point and game loop coordination
 - **StaminaManager.cs**: Handles all stamina-related displays
-- **DisplayTextManager.cs**: Manages time, date, and days passed displays
+- **DisplayTextManager.cs**: Manages time, date, days passed, and speedometer displays
 - **InputHandler.cs**: Processes keyboard input and adjustment mode
 - **Config.cs**: Configuration loading and saving
 - **Utils.cs**: Utility methods for text display, formatting, and error logging
@@ -239,7 +256,12 @@ IVSDKDotNet\scripts\SenorGPT.GTAIV.ChittyInfoDisplay.log
 
 ## Changelog
 
-### Version 1.0
+### Version 1.1.0
+- Added speedometer display with MPH/KM/H support
+- Added optional RPM display alongside speed
+- Speedometer shows default value in adjustment mode when not in vehicle
+
+### Version 1.0.0
 - Initial release
 - Time, date, and days passed display
 - Multiple stamina display options
