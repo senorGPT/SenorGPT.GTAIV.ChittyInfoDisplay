@@ -2,6 +2,10 @@
 
 A information display mod for Grand Theft Auto IV that shows time, date, days passed, vehicle speedometer with RPM, and stamina information with customizable styles, formats, positioning, fonts, and colors.
 
+## Demo / Showcase
+
+Watch the mod in action: [YouTube Showcase](https://youtu.be/3V8-EkmjDj4)
+
 ## Features
 
 ### **Time & Date Display**
