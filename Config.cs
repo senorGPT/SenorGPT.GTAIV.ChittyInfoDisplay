@@ -44,6 +44,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         public bool ShouldDisplayStaminaSimple {  get; set; } = false;
         public bool ShouldDisplayStaminaValue { get; set; } = true;
         public bool DisplayStaminaValueAsPercentage { get; set; } = true;
+        public bool DisplayStaminaSimpleAsPercentage { get; set; } = false;
 
         public uint[] StaminaBarTextCantSprintRGBA { get; set; } = new uint[] {255, 200, 0, 255};
         public string StaminaSimpleFormat { get; set; } = "Stamina: {0}";
@@ -256,6 +257,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             
             SaveValue(settings, section, "EnableSimpleText", ShouldDisplayStaminaSimple.ToString());
             SaveValue(settings, section, "SimpleFormat", StaminaSimpleFormat);
+            SaveValue(settings, section, "DisplayStaminaSimpleAsPercentage", DisplayStaminaSimpleAsPercentage.ToString());
             SaveValue(settings, section, "StaminaBarTextCantSprintRGBA", string.Join(",", StaminaBarTextCantSprintRGBA));
             SaveValue(settings, section, "SimpleTextPositionX", DisplayStaminaSimple.X.ToString());
             SaveValue(settings, section, "SimpleTextPositionY", DisplayStaminaSimple.Y.ToString());
@@ -573,6 +575,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
 
             // text formatting
             StaminaSimpleFormat = LoadString(settings, section, "SimpleFormat", "Stamina: {0}");
+            DisplayStaminaSimpleAsPercentage = LoadBoolean(settings, section, "DisplayStaminaSimpleAsPercentage", false);
             string staminaBarTextCantSprintRGBA = LoadString(settings, section, "StaminaBarTextCantSprintRGBA", "255,200,0,255");
             StaminaBarTextCantSprintRGBA = ParseRgbaArray(staminaBarTextCantSprintRGBA, StaminaBarTextCantSprintRGBA);
 
