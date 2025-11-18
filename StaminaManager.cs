@@ -213,6 +213,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             if (showSimple && simpleShouldFlash)
             {
                 string staminaSimple = string.Format(_config.StaminaSimpleFormat, GetStaminaProgressBarValue(currentStamina, _config.DisplayStaminaSimpleAsPercentage));
+                if (_config.DisplayStaminaSimpleAsPercentage) staminaSimple += "%";
                 uint[] rgba = simpleDisabledOpacity 
                     ? Utils.CreateDisabledOpacityRgba() 
                     : (_canPlayerSprint ? null : _config.StaminaBarTextCantSprintRGBA);
