@@ -42,6 +42,20 @@ A information display mod for Grand Theft Auto IV that shows time, date, days pa
   - `H` - Switch font
   - `T` - Toggle display on/off
 
+## Screenshots
+
+### All Stamina Displays Active
+![All Stamina Displays Active](screenshots/All_Stamina_Displays_Active.png)
+
+### All Stamina Displays Active (Recovering)
+![All Stamina Displays Active Recovering](screenshots/All_Stamina_Displays_Active_Recovering.png)
+
+### Speedometer with Tachometer
+![Speedometer with Tachometer](screenshots/Speedometer_With_Tachometer.png)
+
+### Adjustment Mode Active
+![Adjustment Mode Active](screenshots/Adjustment_Mode_Active.png)
+
 ## Download
 
 Download the latest release from the [Releases page](https://github.com/senorGPT/SenorGPT.GTAIV.ChittyInfoDisplay/releases/latest).
