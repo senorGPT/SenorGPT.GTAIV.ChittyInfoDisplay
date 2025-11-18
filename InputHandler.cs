@@ -358,8 +358,18 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
 
         private DisplayIndex GetNextEnabledDisplay()
         {
-            DisplayIndex startIndex = _selectedDisplayIndex;
             int totalDisplays = DisplayConstants.TotalDisplays;
+            
+            // in adjustment mode, cycle through ALL displays (including disabled ones)
+            // so users can select and enable/configure disabled displays
+            if (_adjustmentMode)
+            {
+                int nextIndex = ((int)_selectedDisplayIndex + 1) % totalDisplays;
+                return (DisplayIndex)nextIndex;
+            }
+            
+            // when not in adjustment mode, only cycle through enabled displays
+            DisplayIndex startIndex = _selectedDisplayIndex;
             int currentIntIndex = ((int)_selectedDisplayIndex + 1) % totalDisplays;
             int attempts = 0;
 
