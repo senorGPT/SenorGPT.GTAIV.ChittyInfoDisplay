@@ -39,7 +39,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         public int DisplayToggleKey { get; set; } = 0x54; // T key by default
 
         // stamina settings
-        public bool ShouldDisplayStaminaTextProgressBar { get; set; } = true;
+        public bool ShouldDisplayStaminaTextProgressBar { get; set; } = false;
         public bool ShouldDisplayStaminaRectangleProgressBar { get; set; } = true;
         public bool ShouldDisplayStaminaSimple {  get; set; } = false;
         public bool ShouldDisplayStaminaValue { get; set; } = true;
