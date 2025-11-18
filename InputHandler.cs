@@ -86,7 +86,8 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 [DisplayIndex.DaysPassed] = () => _config.DisplayPassed,
                 [DisplayIndex.StaminaTextBar] = () => _config.DisplayStamina,
                 [DisplayIndex.StaminaValue] = () => _config.DisplayStaminaValue,
-                [DisplayIndex.StaminaSimple] = () => _config.DisplayStaminaSimple
+                [DisplayIndex.StaminaSimple] = () => _config.DisplayStaminaSimple,
+                [DisplayIndex.Speedometer] = () => _config.DisplaySpeedometer
             };
 
             // map DisplayIndex to enabled state getter
@@ -98,7 +99,8 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 [DisplayIndex.StaminaTextBar] = () => _config.ShouldDisplayStaminaTextProgressBar,
                 [DisplayIndex.StaminaValue] = () => _config.ShouldDisplayStaminaValue,
                 [DisplayIndex.StaminaSimple] = () => _config.ShouldDisplayStaminaSimple,
-                [DisplayIndex.StaminaRectangle] = () => _config.ShouldDisplayStaminaRectangleProgressBar
+                [DisplayIndex.StaminaRectangle] = () => _config.ShouldDisplayStaminaRectangleProgressBar,
+                [DisplayIndex.Speedometer] = () => _config.ShouldDisplaySpeedometer
             };
 
             // map DisplayIndex to toggle action
@@ -110,7 +112,8 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 [DisplayIndex.StaminaTextBar] = () => _config.ShouldDisplayStaminaTextProgressBar = !_config.ShouldDisplayStaminaTextProgressBar,
                 [DisplayIndex.StaminaValue] = () => _config.ShouldDisplayStaminaValue = !_config.ShouldDisplayStaminaValue,
                 [DisplayIndex.StaminaSimple] = () => _config.ShouldDisplayStaminaSimple = !_config.ShouldDisplayStaminaSimple,
-                [DisplayIndex.StaminaRectangle] = () => _config.ShouldDisplayStaminaRectangleProgressBar = !_config.ShouldDisplayStaminaRectangleProgressBar
+                [DisplayIndex.StaminaRectangle] = () => _config.ShouldDisplayStaminaRectangleProgressBar = !_config.ShouldDisplayStaminaRectangleProgressBar,
+                [DisplayIndex.Speedometer] = () => _config.ShouldDisplaySpeedometer = !_config.ShouldDisplaySpeedometer
             };
             
             InitializeKeys();

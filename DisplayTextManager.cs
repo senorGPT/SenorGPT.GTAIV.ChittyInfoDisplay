@@ -1,4 +1,5 @@
 using System;
+using CCL.GTAIV;
 using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
 
@@ -11,6 +12,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
     {
         private string _displayMessageDate;
         private string _displayMessageTime;
+        private string _displayMessageSpeed = "0 MPH"; // default value for speedometer
         private readonly Config _config;
         private readonly InputHandler _inputHandler;
 
@@ -76,10 +78,11 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         }
 
         /// <summary>
-        /// Handles the display of all text-based UI elements (time, date, days passed).
+        /// Handles the display of all text-based UI elements (time, date, days passed, speedometer).
         /// Updates the display strings and renders them if enabled.
         /// </summary>
-        public void HandleDisplayText()
+        /// <param name="playerPed">The player ped for speedometer display.</param>
+        public void HandleDisplayText(IVPed playerPed = null)
         {
             // check if the values have changed, only update if they have
             UpdateDisplayText();
@@ -128,6 +131,64 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                     _config.DisplayPassed.Font,
                     rgba
                 );
+            }
+
+            // speedometer display 
+            HandleSpeedometerDisplay(playerPed);
+        }
+
+        /// <summary>
+        /// Updates and displays the speedometer if the player is in a vehicle.
+        /// </summary>
+        /// <param name="playerPed">The player ped to check for vehicle.</param>
+        public void HandleSpeedometerDisplay(IVPed playerPed)
+        {
+            if (playerPed == null) return;
+            
+            bool showSpeedometer = _config.ShouldDisplaySpeedometer || _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.Speedometer);
+            if (!showSpeedometer || !_inputHandler.ShouldDisplayFlash(DisplayIndex.Speedometer))
+                return;
+            
+            try
+            {
+                // default to 0 speed (especially useful in adjustment mode when not in vehicle)
+                string unit = _config.SpeedometerUseMPH ? " MPH" : " KM/H";
+                _displayMessageSpeed = "0" + unit + (_config.SpeedometerShowRPM ? " | 0 RPM" : "");
+
+                // get the current vehicle of the player using IVSDKDotNet methods
+                IVVehicle currentVehicle = IVVehicle.FromUIntPtr(playerPed.GetVehicle());
+                if (currentVehicle == null || !currentVehicle.IsDriver(playerPed) || !currentVehicle.VehicleFlags.EngineOn)
+                    return;
+
+                float speedMS = currentVehicle.GetSpeed();
+                int speed = _config.SpeedometerUseMPH 
+                    ? (int)Math.Round(speedMS * 2.23694f)    // convert m/s to MPH
+                    : (int)Math.Round(speedMS * 3.6f);       // convert m/s to KM/H
+                string speedText = speed.ToString() + unit;
+
+                // add RPM if enabled (user will implement RPM retrieval)
+                if (_config.SpeedometerShowRPM)
+                    speedText += $"  | {Math.Round(currentVehicle.EngineRPM * 10000)} RPM";
+
+                // only update if changed
+                if (_displayMessageSpeed != speedText)
+                    _displayMessageSpeed = speedText;
+
+                // display the speedometer
+                uint[] rgba = _inputHandler.ShouldDisplayAtDisabledOpacity(DisplayIndex.Speedometer) ? Utils.CreateDisabledOpacityRgba() : null;
+                Utils.DisplayTextString(
+                    _config.DisplaySpeedometer.Scale,
+                    _config.DisplaySpeedometer.X,
+                    _config.DisplaySpeedometer.Y,
+                    _displayMessageSpeed,
+                    _config.DisplaySpeedometer.Font,
+                    rgba
+                );
+            }
+            catch (Exception ex)
+            {
+                // if speedometer update fails, log error
+                Utils.LogError("DisplayTextManager.HandleSpeedometerDisplay", ex);
             }
         }
     }

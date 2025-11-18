@@ -55,7 +55,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 // update the display text strings only if they've changed
                 try
                 {
-                    displayTextManager.HandleDisplayText();
+                    displayTextManager.HandleDisplayText(playerPed);
                 }
                 catch (Exception ex)
                 {

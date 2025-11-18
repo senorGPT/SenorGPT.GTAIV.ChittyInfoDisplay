@@ -21,6 +21,11 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         // days passed display settings
         public bool ShouldDisplayDaysPassed { get; set; } = true;
 
+        // speedometer display settings
+        public bool ShouldDisplaySpeedometer { get; set; } = false;
+        public bool SpeedometerUseMPH { get; set; } = true; // true for MPH, false for KM/H
+        public bool SpeedometerShowRPM { get; set; } = false; // true to show RPM alongside speed
+
         // input settings
         public int AdjustmentModeToggleKey { get; set; } = 0x46; // F key by default
         public int DisplaySelectorKey { get; set; } = 0x47; // G key by default
@@ -88,6 +93,13 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             Y = 0.93f,
             Scale = 0.2f
         };
+
+        public DisplayTextConfig DisplaySpeedometer { get; set; } = new DisplayTextConfig
+        {
+            X = 0.5f,
+            Y = 0.85f,
+            Scale = 0.3f
+        };
         #endregion
 
         #region Global Variables
@@ -110,6 +122,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             SaveTimeSettings(_settingsFile);
             SaveDateSettings(_settingsFile);
             SaveDaysPassedSettings(_settingsFile);
+            SaveSpeedometerSettings(_settingsFile);
             SaveInputSettings(_settingsFile);
             SaveStaminaSettings(_settingsFile);
             SaveStaminaTextBarSettings(_settingsFile);
@@ -154,6 +167,20 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             SaveValue(settings, section, "PositionY", DisplayPassed.Y.ToString());
             SaveValue(settings, section, "Scale", DisplayPassed.Scale.ToString());
             SaveValue(settings, section, "Font", DisplayPassed.Font.ToString());
+        }
+
+        private void SaveSpeedometerSettings(SettingsFile settings)
+        {
+            const string section = "Speedometer";
+            if (!settings.DoesSectionExists(section)) settings.AddSection(section);
+            
+            SaveValue(settings, section, "EnableSpeedometer", ShouldDisplaySpeedometer.ToString());
+            SaveValue(settings, section, "UseMPH", SpeedometerUseMPH.ToString());
+            SaveValue(settings, section, "ShowRPM", SpeedometerShowRPM.ToString());
+            SaveValue(settings, section, "PositionX", DisplaySpeedometer.X.ToString());
+            SaveValue(settings, section, "PositionY", DisplaySpeedometer.Y.ToString());
+            SaveValue(settings, section, "Scale", DisplaySpeedometer.Scale.ToString());
+            SaveValue(settings, section, "Font", DisplaySpeedometer.Font.ToString());
         }
 
         private void SaveInputSettings(SettingsFile settings)
@@ -277,6 +304,9 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             // days passed settings (includes position and scale)
             LoadDaysPassedSettings(settings);
 
+            // speedometer settings (includes position and scale)
+            LoadSpeedometerSettings(settings);
+
             // input settings
             LoadInputSettings(settings);
 
@@ -385,6 +415,20 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
             DisplayPassed.Y = LoadFloat(settings, section, "PositionY", 0.73f);
             DisplayPassed.Scale = LoadFloat(settings, section, "Scale", 0.2f);
             DisplayPassed.Font = Utils.ValidateFont((uint)LoadInteger(settings, section, "Font", (int)DisplayConstants.DefaultFont));
+        }
+
+        private void LoadSpeedometerSettings(SettingsFile settings)
+        {
+            const string section = "Speedometer";
+            if (!settings.DoesSectionExists(section)) settings.AddSection(section);
+
+            ShouldDisplaySpeedometer = LoadBoolean(settings, section, "EnableSpeedometer", false);
+            SpeedometerUseMPH = LoadBoolean(settings, section, "UseMPH", true);
+            SpeedometerShowRPM = LoadBoolean(settings, section, "ShowRPM", false);
+            DisplaySpeedometer.X = LoadFloat(settings, section, "PositionX", 0.5f);
+            DisplaySpeedometer.Y = LoadFloat(settings, section, "PositionY", 0.85f);
+            DisplaySpeedometer.Scale = LoadFloat(settings, section, "Scale", 0.3f);
+            DisplaySpeedometer.Font = Utils.ValidateFont((uint)LoadInteger(settings, section, "Font", (int)DisplayConstants.DefaultFont));
         }
 
         private int LoadHexKey(SettingsFile settings, string section, string key, string defaultValue)

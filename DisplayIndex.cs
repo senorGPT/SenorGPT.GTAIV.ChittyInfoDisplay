@@ -8,7 +8,8 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         StaminaTextBar = 3,
         StaminaValue = 4,
         StaminaSimple = 5,
-        StaminaRectangle = 6
+        StaminaRectangle = 6,
+        Speedometer = 7
     }
 }
 
