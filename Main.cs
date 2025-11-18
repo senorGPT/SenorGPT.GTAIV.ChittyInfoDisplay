@@ -75,7 +75,7 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
                 // stamina display
                 try
                 {
-                    staminaManager.HandleStaminaDisplay(playerPed.PlayerInfo.Stamina);
+                    staminaManager.HandleStaminaDisplay(playerPed.PlayerInfo.Stamina, playerPed);
                 }
                 catch (Exception ex)
                 {

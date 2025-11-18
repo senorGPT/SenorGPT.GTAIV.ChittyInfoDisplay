@@ -1,4 +1,5 @@
 using System;
+using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
 
 namespace SenorGPT.GTAIV.ChittyInfoDisplay
@@ -153,8 +154,12 @@ namespace SenorGPT.GTAIV.ChittyInfoDisplay
         /// Updates sprint state, applies colors, and displays all enabled stamina displays.
         /// </summary>
         /// <param name="currentStamina">The current stamina value from the player.</param>
-        public void HandleStaminaDisplay(float currentStamina)
+        /// <param name="playerPed">The player ped to check if in a vehicle.</param>
+        public void HandleStaminaDisplay(float currentStamina, IVPed playerPed)
         {
+            if (IVVehicle.FromUIntPtr(playerPed.GetVehicle()) != null)
+                return;
+            
             // update sprint state
             UpdateSprintState(currentStamina);
             
